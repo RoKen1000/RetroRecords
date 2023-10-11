@@ -38,5 +38,27 @@ namespace RetroRecords_RecordAPI.Controllers
 
             return Ok(record);
         }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<RecordDTO> CreateRecord([FromBody]RecordDTO newRecord)
+        {
+            if(newRecord == null)
+            {
+                return BadRequest();
+            }
+            if(newRecord.Id == 0)
+            {
+                return BadRequest();
+            }
+
+            newRecord.Id = RecordTempDb.RecordList.OrderByDescending(r => r.Id).FirstOrDefault().Id + 1;
+
+            RecordTempDb.RecordList.Add(newRecord);
+
+            return Ok(newRecord);
+        }
     }
 }
