@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RetroRecords_RecordAPI.Models;
+using RetroRecords_RecordAPI.Models.Dto;
 
 namespace RetroRecords_RecordAPI.Controllers
 {
@@ -9,12 +10,12 @@ namespace RetroRecords_RecordAPI.Controllers
     public class RecordAPIController : ControllerBase
     {
         [HttpGet]
-        public IEnumerable<Record> GetRecords()
+        public IEnumerable<RecordDTO> GetRecords()
         {
 
-            return new List<Record>{
-                new Record{Id = 1, Name = "Aladdin Sane"},
-                new Record{Id = 2, Name = "Station To Station"}
+            return new List<RecordDTO>{
+                new RecordDTO{Id = 1, Name = "Aladdin Sane"},
+                new RecordDTO{Id = 2, Name = "Station To Station"}
             };
         }
     }
