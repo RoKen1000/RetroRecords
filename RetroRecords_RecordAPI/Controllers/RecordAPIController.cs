@@ -16,5 +16,11 @@ namespace RetroRecords_RecordAPI.Controllers
 
             return RecordTempDb.RecordList;
         }
+
+        [HttpGet("id:int")]
+        public RecordDTO GetRecord(int id)
+        {
+            return RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+        }
     }
 }
