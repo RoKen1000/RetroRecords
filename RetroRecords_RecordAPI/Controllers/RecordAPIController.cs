@@ -11,16 +11,16 @@ namespace RetroRecords_RecordAPI.Controllers
     public class RecordAPIController : ControllerBase
     {
         [HttpGet]
-        public IEnumerable<RecordDTO> GetRecords()
+        public ActionResult<IEnumerable<RecordDTO>> GetRecords()
         {
 
-            return RecordTempDb.RecordList;
+            return Ok(RecordTempDb.RecordList);
         }
 
         [HttpGet("id:int")]
-        public RecordDTO GetRecord(int id)
+        public ActionResult<RecordDTO> GetRecord(int id)
         {
-            return RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+            return Ok(RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id));
         }
     }
 }
