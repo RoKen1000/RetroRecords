@@ -20,7 +20,19 @@ namespace RetroRecords_RecordAPI.Controllers
         [HttpGet("id:int")]
         public ActionResult<RecordDTO> GetRecord(int id)
         {
-            return Ok(RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id));
+            if(id == 0)
+            {
+                return BadRequest();
+            }
+
+            RecordDTO record = RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+
+            if(record == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(record);
         }
     }
 }
