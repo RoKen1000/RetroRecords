@@ -11,6 +11,7 @@ namespace RetroRecords_RecordAPI.Controllers
     public class RecordAPIController : ControllerBase
     {
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<RecordDTO>> GetRecords()
         {
 
@@ -18,6 +19,9 @@ namespace RetroRecords_RecordAPI.Controllers
         }
 
         [HttpGet("id:int")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<RecordDTO> GetRecord(int id)
         {
             if(id == 0)
