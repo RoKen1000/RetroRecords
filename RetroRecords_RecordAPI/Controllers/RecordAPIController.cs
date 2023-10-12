@@ -14,7 +14,6 @@ namespace RetroRecords_RecordAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<RecordDTO>> GetRecords()
         {
-
             return Ok(RecordTempDb.RecordList);
         }
 
@@ -46,11 +45,7 @@ namespace RetroRecords_RecordAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<RecordDTO> CreateRecord([FromBody]RecordDTO newRecord)
         {
-            if(newRecord == null)
-            {
-                return BadRequest();
-            }
-            if(newRecord.Id == 0)
+            if(newRecord == null || newRecord.Id == 0)
             {
                 return BadRequest();
             }
