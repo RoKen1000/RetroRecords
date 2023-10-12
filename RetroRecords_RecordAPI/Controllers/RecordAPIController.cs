@@ -45,6 +45,12 @@ namespace RetroRecords_RecordAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<RecordDTO> CreateRecord([FromBody]RecordDTO newRecord)
         {
+            if(RecordTempDb.RecordList.FirstOrDefault(r => r.Name.ToLower() == newRecord.Name.ToLower()) != null)
+            {
+                ModelState.AddModelError("RecordAlreadyExistsError", "Record already exists!");
+                return BadRequest(ModelState);
+            }
+
             if(newRecord == null || newRecord.Id == 0)
             {
                 return BadRequest();
