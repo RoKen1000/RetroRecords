@@ -18,7 +18,7 @@ namespace RetroRecords_RecordAPI.Controllers
             return Ok(RecordTempDb.RecordList);
         }
 
-        [HttpGet("id:int")]
+        [HttpGet("{id:int}", Name = "GetRecord")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -41,6 +41,7 @@ namespace RetroRecords_RecordAPI.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<RecordDTO> CreateRecord([FromBody]RecordDTO newRecord)
@@ -58,7 +59,7 @@ namespace RetroRecords_RecordAPI.Controllers
 
             RecordTempDb.RecordList.Add(newRecord);
 
-            return Ok(newRecord);
+            return CreatedAtRoute("GetRecord", new {id = newRecord.Id},newRecord);
         }
     }
 }
