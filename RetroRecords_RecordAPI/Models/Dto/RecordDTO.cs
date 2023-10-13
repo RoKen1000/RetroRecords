@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace RetroRecords_RecordAPI.Models.Dto
 {
@@ -8,5 +9,10 @@ namespace RetroRecords_RecordAPI.Models.Dto
         [Required]
         [MaxLength(40)]
         public string Name { get; set; }
+        [Required]
+        [MaxLength(40)]
+        public string Artist { get; set; }
+        [HiddenInput]
+        public string RunTimeString { get; set; }
     }
 }

@@ -86,5 +86,23 @@ namespace RetroRecords_RecordAPI.Controllers
             return NoContent();
         }
 
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult UpdateRecord(int id, [FromBody]RecordDTO recordUpdate)
+        {
+            if(recordUpdate == null || id != recordUpdate.Id)
+            {
+                return BadRequest();
+            }
+
+            var recordInDb = RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+
+            recordInDb.Name = recordUpdate.Name;
+            recordInDb.Artist = recordUpdate.Artist;
+            recordInDb.RunTimeString = recordUpdate.RunTimeString;
+
+            return NoContent();
+        }
     }
 }
