@@ -62,5 +62,29 @@ namespace RetroRecords_RecordAPI.Controllers
 
             return CreatedAtRoute("GetRecord", new {id = newRecord.Id},newRecord);
         }
+
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult DeleteRecord(int id)
+        {
+            if(id == 0)
+            {
+                return BadRequest();
+            }
+
+            var recordToBeDeleted = RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+
+            if(recordToBeDeleted == null)
+            {
+                return NotFound();
+            }
+
+            RecordTempDb.RecordList.Remove(recordToBeDeleted);
+
+            return NoContent();
+        }
+
     }
 }
