@@ -11,10 +11,19 @@ namespace RetroRecords_RecordAPI.Controllers
     [ApiController]
     public class RecordAPIController : ControllerBase
     {
+        private readonly ILogger<RecordAPIController> _logger;
+
+        public RecordAPIController(ILogger<RecordAPIController> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<RecordDTO>> GetRecords()
         {
+            _logger.LogInformation("Getting all records...");
+
             return Ok(RecordTempDb.RecordList);
         }
 
@@ -26,6 +35,7 @@ namespace RetroRecords_RecordAPI.Controllers
         {
             if(id == 0)
             {
+                _logger.LogError($"Error retrieving record {id}. It does not exists.");
                 return BadRequest();
             }
 
