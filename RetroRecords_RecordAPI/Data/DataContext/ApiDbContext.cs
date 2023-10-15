@@ -6,8 +6,12 @@ namespace RetroRecords_RecordAPI.Data.DataContext
     public class ApiDbContext : DbContext
 
     {
-        public DbSet<Record> Records { get; set; }
+        public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options)
+        {
+            
+        }
 
+        public DbSet<Record> Records { get; set; }
 
     }
 }
