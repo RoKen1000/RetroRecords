@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using RetroRecords_RecordAPI.Data;
 using RetroRecords_RecordAPI.Models;
@@ -10,17 +11,136 @@ namespace RetroRecords_RecordAPI.Controllers
     [ApiController]
     public class RecordAPIController : ControllerBase
     {
-        [HttpGet]
-        public IEnumerable<RecordDTO> GetRecords()
-        {
+        private readonly ILogger<RecordAPIController> _logger;
 
-            return RecordTempDb.RecordList;
+        public RecordAPIController(ILogger<RecordAPIController> logger)
+        {
+            _logger = logger;
         }
 
-        [HttpGet("id:int")]
-        public RecordDTO GetRecord(int id)
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<IEnumerable<RecordDTO>> GetRecords()
         {
-            return RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+            _logger.LogInformation("Getting all records...");
+
+            return Ok(RecordTempDb.RecordList);
+        }
+
+        [HttpGet("{id:int}", Name = "GetRecord")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<RecordDTO> GetRecord(int id)
+        {
+            if(id == 0)
+            {
+                _logger.LogError($"Error retrieving record {id}. It does not exists.");
+                return BadRequest();
+            }
+
+            RecordDTO record = RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+
+            if(record == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(record);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<RecordDTO> CreateRecord([FromBody]RecordDTO newRecord)
+        {
+            if(RecordTempDb.RecordList.FirstOrDefault(r => r.Name.ToLower() == newRecord.Name.ToLower()) != null)
+            {
+                ModelState.AddModelError("RecordAlreadyExistsError", "Record already exists!");
+                return BadRequest(ModelState);
+            }
+
+            if(newRecord == null || newRecord.Id == 0)
+            {
+                return BadRequest();
+            }
+
+            newRecord.Id = RecordTempDb.RecordList.OrderByDescending(r => r.Id).FirstOrDefault().Id + 1;
+
+            RecordTempDb.RecordList.Add(newRecord);
+
+            return CreatedAtRoute("GetRecord", new {id = newRecord.Id},newRecord);
+        }
+
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult DeleteRecord(int id)
+        {
+            if(id == 0)
+            {
+                return BadRequest();
+            }
+
+            var recordToBeDeleted = RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+
+            if(recordToBeDeleted == null)
+            {
+                return NotFound();
+            }
+
+            RecordTempDb.RecordList.Remove(recordToBeDeleted);
+
+            return NoContent();
+        }
+
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult UpdateRecord(int id, [FromBody]RecordDTO recordUpdate)
+        {
+            if(recordUpdate == null || id != recordUpdate.Id)
+            {
+                return BadRequest();
+            }
+
+            var recordInDb = RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+
+            recordInDb.Name = recordUpdate.Name;
+            recordInDb.Artist = recordUpdate.Artist;
+            recordInDb.RunTimeString = recordUpdate.RunTimeString;
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult PatchRecord(int id, JsonPatchDocument<RecordDTO> patch)
+        {
+            if(patch == null || id == 0)
+            {
+                return BadRequest();
+            }
+
+            var recordInDb = RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+
+            if(recordInDb == null)
+            {
+                return BadRequest();
+            }
+
+            patch.ApplyTo(recordInDb, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            return NoContent();
         }
     }
 }
