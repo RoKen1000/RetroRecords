@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using RetroRecords_RecordAPI.Data;
 using RetroRecords_RecordAPI.Models;
@@ -101,6 +102,33 @@ namespace RetroRecords_RecordAPI.Controllers
             recordInDb.Name = recordUpdate.Name;
             recordInDb.Artist = recordUpdate.Artist;
             recordInDb.RunTimeString = recordUpdate.RunTimeString;
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult PatchRecord(int id, JsonPatchDocument<RecordDTO> patch)
+        {
+            if(patch == null || id == 0)
+            {
+                return BadRequest();
+            }
+
+            var recordInDb = RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+
+            if(recordInDb == null)
+            {
+                return BadRequest();
+            }
+
+            patch.ApplyTo(recordInDb, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
             return NoContent();
         }
