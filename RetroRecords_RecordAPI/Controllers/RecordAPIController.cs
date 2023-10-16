@@ -113,24 +113,34 @@ namespace RetroRecords_RecordAPI.Controllers
             return NoContent();
         }
 
-        //[HttpPut("{id:int}")]
-        //[ProducesResponseType(StatusCodes.Status204NoContent)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public IActionResult UpdateRecord(int id, [FromBody] RecordDTO recordUpdate)
-        //{
-        //    if (recordUpdate == null || id != recordUpdate.Id)
-        //    {
-        //        return BadRequest();
-        //    }
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult UpdateRecord(int id, [FromBody] RecordDTO recordUpdate)
+        {
+            if (recordUpdate == null || id != recordUpdate.Id)
+            {
+                return BadRequest();
+            }
 
-        //    var recordInDb = _db.Records.FirstOrDefault(r => r.Id == id);
+            var recordInDb = _db.Records.FirstOrDefault(r => r.Id == id);
 
-        //    recordInDb.Name = recordUpdate.Name;
-        //    recordInDb.Artist = recordUpdate.Artist;
-        //    recordInDb.RunTimeString = recordUpdate.RunTimeString;
+            recordInDb.Name = recordUpdate.Name;
+            recordInDb.Artist = recordUpdate.Artist;
+            recordInDb.UpdatedAt = DateTime.Now;
+            recordInDb.RunTime = new TimeSpan(recordUpdate.RunTimeArray[0],
+                recordUpdate.RunTimeArray[1],
+                recordUpdate.RunTimeArray[2]);
+            recordInDb.Genre = recordUpdate.Genre;
+            recordInDb.ReleaseDate = new DateTime(recordUpdate.ReleaseDateArray[0],
+                recordUpdate.ReleaseDateArray[1],
+                recordUpdate.ReleaseDateArray[2]);
+            recordInDb.Label = recordUpdate.Label;
 
-        //    return NoContent();
-        //}
+            _db.SaveChanges();
+
+            return NoContent();
+        }
 
         //[HttpPatch("{id:int}")]
         //[ProducesResponseType(StatusCodes.Status204NoContent)]
