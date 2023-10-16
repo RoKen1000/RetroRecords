@@ -116,7 +116,7 @@ namespace RetroRecords_RecordAPI.Controllers
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult UpdateRecord(int id, [FromBody] RecordDTO recordUpdate)
+        public IActionResult UpdateRecord(int id, [FromBody] RecordDTO recordUpdate)
         {
             if (recordUpdate == null || id != recordUpdate.Id)
             {
@@ -142,31 +142,32 @@ namespace RetroRecords_RecordAPI.Controllers
             return NoContent();
         }
 
-        //[HttpPatch("{id:int}")]
-        //[ProducesResponseType(StatusCodes.Status204NoContent)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public IActionResult PatchRecord(int id, JsonPatchDocument<RecordDTO> patch)
-        //{
-        //    if(patch == null || id == 0)
-        //    {
-        //        return BadRequest();
-        //    }
+        [HttpPatch("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult PatchRecord(int id, JsonPatchDocument<Record> patch)
+        {
+            if (patch == null || id == 0)
+            {
+                return BadRequest();
+            }
 
-        //    var recordInDb = RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+            var recordInDb = _db.Records.FirstOrDefault(r => r.Id == id);
 
-        //    if(recordInDb == null)
-        //    {
-        //        return BadRequest();
-        //    }
+            if (recordInDb == null)
+            {
+                return BadRequest();
+            }
 
-        //    patch.ApplyTo(recordInDb, ModelState);
+            patch.ApplyTo(recordInDb, ModelState);
+            _db.SaveChanges();
 
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-        //    return NoContent();
-        //}
+            return NoContent();
+        }
     }
 }
