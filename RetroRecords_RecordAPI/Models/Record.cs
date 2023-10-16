@@ -8,11 +8,7 @@ namespace RetroRecords_RecordAPI.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [Required]
-        [MaxLength(40)]
         public string Name { get; set; }
-        [Required]
-        [MaxLength(40)]
         public string Artist { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

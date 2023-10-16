@@ -5,6 +5,7 @@ namespace RetroRecords_RecordAPI.Models.Dto
 {
     public class RecordDTO
     {
+        [Required]
         public int Id { get; set; }
         [Required]
         [MaxLength(40)]
@@ -12,12 +13,9 @@ namespace RetroRecords_RecordAPI.Models.Dto
         [Required]
         [MaxLength(40)]
         public string Artist { get; set; }
-        [HiddenInput]
-        public string RunTimeString { get; set; }
-        [HiddenInput]
-        public string ReleaseDateString { get; set; }
+        public int[] RunTimeArray { get; set; } = new int[3];
         public string Genre { get; set; }
-        public string Country { get; set; }
+        public int[] ReleaseDateArray { get; set; } = new int[3];
         public string Label { get; set; }
     }
 }
