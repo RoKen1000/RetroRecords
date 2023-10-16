@@ -23,7 +23,7 @@ namespace RetroRecords_RecordAPI.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<RecordDTO>> GetRecords()
+        public ActionResult<IEnumerable<Record>> GetRecords()
         {
             _logger.LogInformation("Getting all records...");
 
@@ -34,7 +34,7 @@ namespace RetroRecords_RecordAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<RecordDTO> GetRecord(int id)
+        public ActionResult<Record> GetRecord(int id)
         {
             if(id == 0)
             {
@@ -72,7 +72,6 @@ namespace RetroRecords_RecordAPI.Controllers
 
             Record model = new Record()
             {
-                //Id = newRecord.Id,
                 Name = newRecord.Name,
                 Artist = newRecord.Artist,
                 CreatedAt = DateTime.Now,
