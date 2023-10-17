@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using RetroRecords_RecordAPI.Data;
 using RetroRecords_RecordAPI.Data.DataContext;
 using RetroRecords_RecordAPI.Models;
@@ -70,7 +72,7 @@ namespace RetroRecords_RecordAPI.Controllers
                 return BadRequest();
             }
 
-            Record model = new Record()
+            Record recordModel = new Record()
             {
                 Name = newRecord.Name,
                 Artist = newRecord.Artist,
@@ -83,10 +85,10 @@ namespace RetroRecords_RecordAPI.Controllers
                 Label = newRecord.Label
             };
 
-            _db.Records.Add(model);
+            _db.Records.Update(recordModel);
             _db.SaveChanges();
 
-            return CreatedAtRoute("GetRecord", new { id = newRecord.Id }, model);
+            return CreatedAtRoute("GetRecord", new { id = newRecord.Id }, recordModel);
         }
 
         [HttpDelete("{id:int}")]
@@ -145,27 +147,62 @@ namespace RetroRecords_RecordAPI.Controllers
         [HttpPatch("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult PatchRecord(int id, JsonPatchDocument<Record> patch)
+        public IActionResult PatchRecord(int id, JsonPatchDocument<RecordDTO> patch)
         {
-            if (patch == null || id == 0)
+            if (patch == null || id == 0 || patch.Operations[0].path == "/Id")
             {
                 return BadRequest();
             }
 
-            var recordInDb = _db.Records.FirstOrDefault(r => r.Id == id);
+            var recordInDb = _db.Records.AsNoTracking().FirstOrDefault(r => r.Id == id);
 
             if (recordInDb == null)
             {
                 return BadRequest();
             }
 
-            patch.ApplyTo(recordInDb, ModelState);
-            _db.SaveChanges();
+            if(patch.Operations[0].path == "/RunTimeArray")
+            {
+                patch.Operations[0].value = JsonConvert.DeserializeObject<int[]>(patch.Operations[0].value.ToString());
+            }
+            else if(patch.Operations[0].path == "/ReleaseDateArray")
+            {
+                patch.Operations[0].value = JsonConvert.DeserializeObject<int[]>(patch.Operations[0].value.ToString());
+            }
+
+            RecordDTO recordDTO = new RecordDTO()
+            {
+                Id = id,
+                Name = recordInDb.Name,
+                Artist = recordInDb.Artist,
+                RunTimeArray = new int[3] { recordInDb.RunTime.Hours, recordInDb.RunTime.Minutes, recordInDb.RunTime.Seconds },
+                Genre = recordInDb.Genre,
+                ReleaseDateArray = new int[3] {recordInDb.ReleaseDate.Year, recordInDb.ReleaseDate.Month, recordInDb.ReleaseDate.Day},
+                Label = recordInDb.Label
+            };
+
+            patch.ApplyTo(recordDTO, ModelState);
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            Record recordModel = new Record()
+            {
+                Id = id,
+                Name = recordDTO.Name,
+                Artist = recordDTO.Artist,
+                UpdatedAt = DateTime.Now,
+                RunTime = new TimeSpan(recordDTO.RunTimeArray[0], recordDTO.RunTimeArray[1], recordDTO.RunTimeArray[2]),
+                Genre = recordDTO.Genre,
+                ReleaseDate = new DateTime(recordDTO.ReleaseDateArray[0], recordDTO.ReleaseDateArray[1], recordDTO.ReleaseDateArray[2]),
+                Label = recordDTO.Label
+            };
+
+
+            _db.Records.Update(recordModel);
+            _db.SaveChanges();
 
             return NoContent();
         }
