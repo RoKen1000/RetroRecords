@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using RetroRecords_RecordAPI.Data;
+using RetroRecords_RecordAPI.Data.DataContext;
 using RetroRecords_RecordAPI.Models;
 using RetroRecords_RecordAPI.Models.Dto;
 
@@ -12,26 +15,28 @@ namespace RetroRecords_RecordAPI.Controllers
     public class RecordAPIController : ControllerBase
     {
         private readonly ILogger<RecordAPIController> _logger;
+        private readonly ApiDbContext _db;
 
-        public RecordAPIController(ILogger<RecordAPIController> logger)
+        public RecordAPIController(ILogger<RecordAPIController> logger, ApiDbContext db)
         {
             _logger = logger;
+            _db = db;
         }
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<RecordDTO>> GetRecords()
+        public ActionResult<IEnumerable<Record>> GetRecords()
         {
             _logger.LogInformation("Getting all records...");
 
-            return Ok(RecordTempDb.RecordList);
+            return Ok(_db.Records.ToList());
         }
 
         [HttpGet("{id:int}", Name = "GetRecord")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<RecordDTO> GetRecord(int id)
+        public ActionResult<Record> GetRecord(int id)
         {
             if(id == 0)
             {
@@ -39,7 +44,7 @@ namespace RetroRecords_RecordAPI.Controllers
                 return BadRequest();
             }
 
-            RecordDTO record = RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+            Record record = _db.Records.FirstOrDefault(r => r.Id == id);
 
             if(record == null)
             {
@@ -56,22 +61,34 @@ namespace RetroRecords_RecordAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<RecordDTO> CreateRecord([FromBody]RecordDTO newRecord)
         {
-            if(RecordTempDb.RecordList.FirstOrDefault(r => r.Name.ToLower() == newRecord.Name.ToLower()) != null)
+            if(_db.Records.FirstOrDefault(r => r.Name.ToLower() == newRecord.Name.ToLower()) != null)
             {
                 ModelState.AddModelError("RecordAlreadyExistsError", "Record already exists!");
                 return BadRequest(ModelState);
             }
 
-            if(newRecord == null || newRecord.Id == 0)
+            if (newRecord == null || newRecord.Id == 0)
             {
                 return BadRequest();
             }
 
-            newRecord.Id = RecordTempDb.RecordList.OrderByDescending(r => r.Id).FirstOrDefault().Id + 1;
+            Record recordModel = new Record()
+            {
+                Name = newRecord.Name,
+                Artist = newRecord.Artist,
+                CreatedAt = DateTime.Now,
+                RunTime = new TimeSpan(newRecord.RunTimeArray[0], newRecord.RunTimeArray[1], newRecord.RunTimeArray[2]),
+                Genre = newRecord.Genre,
+                ReleaseDate = new DateTime(newRecord.ReleaseDateArray[0],
+                newRecord.ReleaseDateArray[1],
+                newRecord.ReleaseDateArray[2]),
+                Label = newRecord.Label
+            };
 
-            RecordTempDb.RecordList.Add(newRecord);
+            _db.Records.Update(recordModel);
+            _db.SaveChanges();
 
-            return CreatedAtRoute("GetRecord", new {id = newRecord.Id},newRecord);
+            return CreatedAtRoute("GetRecord", new { id = newRecord.Id }, recordModel);
         }
 
         [HttpDelete("{id:int}")]
@@ -80,19 +97,20 @@ namespace RetroRecords_RecordAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult DeleteRecord(int id)
         {
-            if(id == 0)
+            if (id == 0)
             {
                 return BadRequest();
             }
 
-            var recordToBeDeleted = RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+            var recordToBeDeleted = _db.Records.FirstOrDefault(r => r.Id == id);
 
-            if(recordToBeDeleted == null)
+            if (recordToBeDeleted == null)
             {
                 return NotFound();
             }
 
-            RecordTempDb.RecordList.Remove(recordToBeDeleted);
+            _db.Records.Remove(recordToBeDeleted);
+            _db.SaveChanges();
 
             return NoContent();
         }
@@ -100,18 +118,28 @@ namespace RetroRecords_RecordAPI.Controllers
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UpdateRecord(int id, [FromBody]RecordDTO recordUpdate)
+        public IActionResult UpdateRecord(int id, [FromBody] RecordDTO recordUpdate)
         {
-            if(recordUpdate == null || id != recordUpdate.Id)
+            if (recordUpdate == null || id != recordUpdate.Id)
             {
                 return BadRequest();
             }
 
-            var recordInDb = RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+            var recordInDb = _db.Records.FirstOrDefault(r => r.Id == id);
 
             recordInDb.Name = recordUpdate.Name;
             recordInDb.Artist = recordUpdate.Artist;
-            recordInDb.RunTimeString = recordUpdate.RunTimeString;
+            recordInDb.UpdatedAt = DateTime.Now;
+            recordInDb.RunTime = new TimeSpan(recordUpdate.RunTimeArray[0],
+                recordUpdate.RunTimeArray[1],
+                recordUpdate.RunTimeArray[2]);
+            recordInDb.Genre = recordUpdate.Genre;
+            recordInDb.ReleaseDate = new DateTime(recordUpdate.ReleaseDateArray[0],
+                recordUpdate.ReleaseDateArray[1],
+                recordUpdate.ReleaseDateArray[2]);
+            recordInDb.Label = recordUpdate.Label;
+
+            _db.SaveChanges();
 
             return NoContent();
         }
@@ -121,24 +149,60 @@ namespace RetroRecords_RecordAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult PatchRecord(int id, JsonPatchDocument<RecordDTO> patch)
         {
-            if(patch == null || id == 0)
+            if (patch == null || id == 0 || patch.Operations[0].path == "/Id")
             {
                 return BadRequest();
             }
 
-            var recordInDb = RecordTempDb.RecordList.FirstOrDefault(r => r.Id == id);
+            var recordInDb = _db.Records.AsNoTracking().FirstOrDefault(r => r.Id == id);
 
-            if(recordInDb == null)
+            if (recordInDb == null)
             {
                 return BadRequest();
             }
 
-            patch.ApplyTo(recordInDb, ModelState);
+            if(patch.Operations[0].path == "/RunTimeArray")
+            {
+                patch.Operations[0].value = JsonConvert.DeserializeObject<int[]>(patch.Operations[0].value.ToString());
+            }
+            else if(patch.Operations[0].path == "/ReleaseDateArray")
+            {
+                patch.Operations[0].value = JsonConvert.DeserializeObject<int[]>(patch.Operations[0].value.ToString());
+            }
+
+            RecordDTO recordDTO = new RecordDTO()
+            {
+                Id = id,
+                Name = recordInDb.Name,
+                Artist = recordInDb.Artist,
+                RunTimeArray = new int[3] { recordInDb.RunTime.Hours, recordInDb.RunTime.Minutes, recordInDb.RunTime.Seconds },
+                Genre = recordInDb.Genre,
+                ReleaseDateArray = new int[3] {recordInDb.ReleaseDate.Year, recordInDb.ReleaseDate.Month, recordInDb.ReleaseDate.Day},
+                Label = recordInDb.Label
+            };
+
+            patch.ApplyTo(recordDTO, ModelState);
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            Record recordModel = new Record()
+            {
+                Id = id,
+                Name = recordDTO.Name,
+                Artist = recordDTO.Artist,
+                UpdatedAt = DateTime.Now,
+                RunTime = new TimeSpan(recordDTO.RunTimeArray[0], recordDTO.RunTimeArray[1], recordDTO.RunTimeArray[2]),
+                Genre = recordDTO.Genre,
+                ReleaseDate = new DateTime(recordDTO.ReleaseDateArray[0], recordDTO.ReleaseDateArray[1], recordDTO.ReleaseDateArray[2]),
+                Label = recordDTO.Label
+            };
+
+
+            _db.Records.Update(recordModel);
+            _db.SaveChanges();
 
             return NoContent();
         }
