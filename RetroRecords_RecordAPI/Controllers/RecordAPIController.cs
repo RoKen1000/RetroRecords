@@ -120,15 +120,20 @@ namespace RetroRecords_RecordAPI.Controllers
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult UpdateRecord(int id, [FromBody] RecordDTO recordUpdate)
         {
-            //if (recordUpdate == null || id != recordUpdate.Id)
             if (recordUpdate == null)
             {
                 return BadRequest();
             }
 
             var recordInDb = _db.Records.FirstOrDefault(r => r.Id == id);
+
+            if(recordInDb == null)
+            {
+                return NotFound();
+            }
 
             recordInDb.Name = recordUpdate.Name;
             recordInDb.Artist = recordUpdate.Artist;
