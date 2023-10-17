@@ -67,7 +67,7 @@ namespace RetroRecords_RecordAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (newRecord == null || newRecord.Id == 0)
+            if (newRecord == null)
             {
                 return BadRequest();
             }
@@ -88,7 +88,9 @@ namespace RetroRecords_RecordAPI.Controllers
             _db.Records.Update(recordModel);
             _db.SaveChanges();
 
-            return CreatedAtRoute("GetRecord", new { id = newRecord.Id }, recordModel);
+            var id = _db.Records.Where(r => r.Name == newRecord.Name).Select(r => new {r.Id}).FirstOrDefault();
+
+            return CreatedAtRoute("GetRecord", id, recordModel);
         }
 
         [HttpDelete("{id:int}")]
@@ -118,14 +120,20 @@ namespace RetroRecords_RecordAPI.Controllers
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult UpdateRecord(int id, [FromBody] RecordDTO recordUpdate)
         {
-            if (recordUpdate == null || id != recordUpdate.Id)
+            if (recordUpdate == null)
             {
                 return BadRequest();
             }
 
             var recordInDb = _db.Records.FirstOrDefault(r => r.Id == id);
+
+            if(recordInDb == null)
+            {
+                return NotFound();
+            }
 
             recordInDb.Name = recordUpdate.Name;
             recordInDb.Artist = recordUpdate.Artist;
@@ -172,7 +180,6 @@ namespace RetroRecords_RecordAPI.Controllers
 
             RecordDTO recordDTO = new RecordDTO()
             {
-                Id = id,
                 Name = recordInDb.Name,
                 Artist = recordInDb.Artist,
                 RunTimeArray = new int[3] { recordInDb.RunTime.Hours, recordInDb.RunTime.Minutes, recordInDb.RunTime.Seconds },
