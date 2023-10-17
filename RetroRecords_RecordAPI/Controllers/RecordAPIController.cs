@@ -180,7 +180,6 @@ namespace RetroRecords_RecordAPI.Controllers
 
             RecordDTO recordDTO = new RecordDTO()
             {
-                //Id = id,
                 Name = recordInDb.Name,
                 Artist = recordInDb.Artist,
                 RunTimeArray = new int[3] { recordInDb.RunTime.Hours, recordInDb.RunTime.Minutes, recordInDb.RunTime.Seconds },

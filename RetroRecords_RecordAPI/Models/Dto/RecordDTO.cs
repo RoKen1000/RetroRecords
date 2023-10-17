@@ -5,8 +5,6 @@ namespace RetroRecords_RecordAPI.Models.Dto
 {
     public class RecordDTO
     {
-        //[Required]
-        //public int Id { get; set; }
         [Required]
         [MaxLength(40)]
         public string Name { get; set; }
