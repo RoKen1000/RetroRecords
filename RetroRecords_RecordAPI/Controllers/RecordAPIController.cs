@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using RetroRecords_RecordAPI.Data;
-using RetroRecords_RecordAPI.Data.DataContext;
+using RetroRecords.DataAccess;
+using RetroRecords.DataAccess.DataContext;
 using RetroRecords_RecordAPI.Models;
 using RetroRecords_RecordAPI.Models.Dto;
 
