@@ -2,7 +2,7 @@
 using RetroRecords_RecordAPI.Models;
 using RetroRecords_RecordAPI.Models.Dto;
 
-namespace RetroRecords_RecordAPI.Data.DataContext
+namespace RetroRecords.DataAccess.DataContext
 {
     public class ApiDbContext : DbContext
 

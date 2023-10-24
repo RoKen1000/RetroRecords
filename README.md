@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is an API that is designed to store data on music records. It has been built using C#, .Net, and ASP.NET Web API. The database that works with the API uses MS SQL Server and Entity Framework Core for CRUD operations. The project is configured to use Swagger for API documentation and testing.
+This is an API that is designed to store data on music records. It has been built using C#, .Net, and ASP.NET Web API. The database that works with the API uses MS SQL Server and Entity Framework Core for CRUD operations. The project is divided using N-tier Architecture and is configured to use Swagger for API documentation and testing.
 
 ## Cloning This Project
 This project has been built with .NET version 7, so the .NET Software Development Kit will be required to run the project.
