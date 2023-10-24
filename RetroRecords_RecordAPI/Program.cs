@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using RetroRecords_RecordAPI.Data.DataContext;
+using RetroRecords.DataAccess.DataContext;
 
 var builder = WebApplication.CreateBuilder(args);
 

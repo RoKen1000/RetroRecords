@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using RetroRecords_RecordAPI.Data.DataContext;
+using RetroRecords.DataAccess.DataContext;
 
 #nullable disable
 
 namespace RetroRecords_RecordAPI.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20231016112416_SeedRecordTableWithInitialSeedData")]
-    partial class SeedRecordTableWithInitialSeedData
+    [Migration("20231015165531_CreateRecordsTable")]
+    partial class CreateRecordsTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,10 +33,9 @@ namespace RetroRecords_RecordAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Artist")
+                    b.Property<string>("Country")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -51,8 +50,7 @@ namespace RetroRecords_RecordAPI.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
@@ -60,36 +58,12 @@ namespace RetroRecords_RecordAPI.Migrations
                     b.Property<TimeSpan>("RunTime")
                         .HasColumnType("time");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.ToTable("Records");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Artist = "David Bowie",
-                            CreatedAt = new DateTime(2023, 10, 16, 12, 24, 16, 359, DateTimeKind.Local).AddTicks(2498),
-                            Genre = "Glam Rock",
-                            Label = "RCA",
-                            Name = "Aladdin Sane",
-                            ReleaseDate = new DateTime(1973, 4, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            RunTime = new TimeSpan(0, 0, 41, 32, 0)
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Artist = "David Bowie",
-                            CreatedAt = new DateTime(2023, 10, 16, 12, 24, 16, 359, DateTimeKind.Local).AddTicks(2544),
-                            Genre = "Rock",
-                            Label = "RCA",
-                            Name = "Station To Station",
-                            ReleaseDate = new DateTime(1976, 1, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            RunTime = new TimeSpan(0, 0, 37, 54, 0)
-                        });
                 });
 #pragma warning restore 612, 618
         }
