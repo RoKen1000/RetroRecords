@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\RetroRecords.Models\RetroRecords.Models.csproj" />
+    <ProjectReference Include="..\RetroRecords_DataAccess\RetroRecords.DataAccess.csproj" />
+  </ItemGroup>
+
 </Project>

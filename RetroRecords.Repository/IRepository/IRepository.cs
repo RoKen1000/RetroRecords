@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace RetroRecords.Repository.IRepository
 {
-    internal interface IRepository<Record>
+    public interface IRepository<Record>
     {
         IEnumerable<Record> GetAll();
         Record Get(Expression<Func<Record, bool>> filter);
