@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using RetroRecords.DataAccess.DataContext;
+using RetroRecords.Repository;
+using RetroRecords.Repository.IRepository;
+using RetroRecords_RecordAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,7 @@ builder.Services.AddDbContext<ApiDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+builder.Services.AddScoped<IRecordRepository<Record>, RecordRepository>();
 
 var app = builder.Build();
 

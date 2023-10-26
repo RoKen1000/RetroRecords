@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RetroRecords.Models\RetroRecords.Models.csproj" />
+    <ProjectReference Include="..\RetroRecords.Repository\RetroRecords.Repository.csproj" />
     <ProjectReference Include="..\RetroRecords_DataAccess\RetroRecords.DataAccess.csproj" />
   </ItemGroup>
 

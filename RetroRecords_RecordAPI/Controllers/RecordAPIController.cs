@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RetroRecords.DataAccess;
 using RetroRecords.DataAccess.DataContext;
+using RetroRecords.Repository.IRepository;
 using RetroRecords_RecordAPI.Models;
 using RetroRecords_RecordAPI.Models.Dto;
 
@@ -16,11 +17,13 @@ namespace RetroRecords_RecordAPI.Controllers
     {
         private readonly ILogger<RecordAPIController> _logger;
         private readonly ApiDbContext _db;
+        private readonly IRecordRepository<Record> _recordRepository;
 
-        public RecordAPIController(ILogger<RecordAPIController> logger, ApiDbContext db)
+        public RecordAPIController(ILogger<RecordAPIController> logger, ApiDbContext db, IRecordRepository<Record> recordRepository)
         {
             _logger = logger;
             _db = db;
+            _recordRepository = recordRepository;
         }
 
         [HttpGet]
@@ -29,7 +32,7 @@ namespace RetroRecords_RecordAPI.Controllers
         {
             _logger.LogInformation("Getting all records...");
 
-            return Ok(_db.Records.ToList());
+            return Ok(_recordRepository.GetAll());
         }
 
         [HttpGet("{id:int}", Name = "GetRecord")]
