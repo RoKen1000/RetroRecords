@@ -1,15 +1,18 @@
 ﻿
+using RetroRecords_RecordAPI.Models;
+using RetroRecords_RecordAPI.Models.Dto;
 using System.Linq.Expressions;
 
 namespace RetroRecords.Repository.IRepository
 {
-    public interface IRecordRepository<Record>
+    public interface IRecordRepository
     {
         IEnumerable<Record> GetAll();
         Record Get(int id);
-        void Add(Record record);
+        Record Add(RecordDTO newRecord);
+        bool CheckRecordExists(string name);
         void Update(Record record);
         void Delete(Record record);
-
+        void Save();
     }
 }

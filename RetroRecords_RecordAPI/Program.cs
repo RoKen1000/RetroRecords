@@ -16,7 +16,7 @@ builder.Services.AddDbContext<ApiDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
-builder.Services.AddScoped<IRecordRepository<Record>, RecordRepository>();
+builder.Services.AddScoped<IRecordRepository, RecordRepository>();
 
 var app = builder.Build();
 

@@ -17,9 +17,9 @@ namespace RetroRecords_RecordAPI.Controllers
     {
         private readonly ILogger<RecordAPIController> _logger;
         private readonly ApiDbContext _db;
-        private readonly IRecordRepository<Record> _recordRepository;
+        private readonly IRecordRepository _recordRepository;
 
-        public RecordAPIController(ILogger<RecordAPIController> logger, ApiDbContext db, IRecordRepository<Record> recordRepository)
+        public RecordAPIController(ILogger<RecordAPIController> logger, ApiDbContext db, IRecordRepository recordRepository)
         {
             _logger = logger;
             _db = db;
@@ -64,7 +64,7 @@ namespace RetroRecords_RecordAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<RecordDTO> CreateRecord([FromBody]RecordDTO newRecord)
         {
-            if(_db.Records.FirstOrDefault(r => r.Name.ToLower() == newRecord.Name.ToLower()) != null)
+            if(_recordRepository.CheckRecordExists(newRecord.Name) == true)
             {
                 ModelState.AddModelError("RecordAlreadyExistsError", "Record already exists!");
                 return BadRequest(ModelState);
@@ -75,25 +75,12 @@ namespace RetroRecords_RecordAPI.Controllers
                 return BadRequest();
             }
 
-            Record recordModel = new Record()
-            {
-                Name = newRecord.Name,
-                Artist = newRecord.Artist,
-                CreatedAt = DateTime.Now,
-                RunTime = new TimeSpan(newRecord.RunTimeArray[0], newRecord.RunTimeArray[1], newRecord.RunTimeArray[2]),
-                Genre = newRecord.Genre,
-                ReleaseDate = new DateTime(newRecord.ReleaseDateArray[0],
-                newRecord.ReleaseDateArray[1],
-                newRecord.ReleaseDateArray[2]),
-                Label = newRecord.Label
-            };
-
-            _db.Records.Update(recordModel);
-            _db.SaveChanges();
+            Record newRecordModel = _recordRepository.Add(newRecord);
+            _recordRepository.Save();
 
             var id = _db.Records.Where(r => r.Name == newRecord.Name).Select(r => new {r.Id}).FirstOrDefault();
 
-            return CreatedAtRoute("GetRecord", id, recordModel);
+            return CreatedAtRoute("GetRecord", id, newRecordModel);
         }
 
         [HttpDelete("{id:int}")]
