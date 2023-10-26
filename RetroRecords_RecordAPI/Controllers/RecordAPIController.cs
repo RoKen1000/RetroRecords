@@ -47,9 +47,9 @@ namespace RetroRecords_RecordAPI.Controllers
                 return BadRequest();
             }
 
-            Record record = _db.Records.FirstOrDefault(r => r.Id == id);
+            Record record = _recordRepository.Get(id);
 
-            if(record == null)
+            if (record == null)
             {
                 return NotFound();
             }

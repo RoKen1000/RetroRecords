@@ -1,7 +1,6 @@
 ﻿using RetroRecords.DataAccess.DataContext;
 using RetroRecords.Repository.IRepository;
 using RetroRecords_RecordAPI.Models;
-using System.Linq.Expressions;
 
 namespace RetroRecords.Repository
 {
@@ -24,9 +23,11 @@ namespace RetroRecords.Repository
             throw new NotImplementedException();
         }
 
-        public Record Get(Expression<Func<Record, bool>> filter)
+        public Record Get(int id)
         {
-            throw new NotImplementedException();
+            Record record = _db.Records.FirstOrDefault(r => r.Id == id);
+
+            return record;
         }
 
         public IEnumerable<Record> GetAll()
