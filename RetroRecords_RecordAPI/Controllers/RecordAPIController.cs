@@ -94,15 +94,15 @@ namespace RetroRecords_RecordAPI.Controllers
                 return BadRequest();
             }
 
-            var recordToBeDeleted = _db.Records.FirstOrDefault(r => r.Id == id);
+            var recordToBeDeleted = _recordRepository.Get(id);
 
             if (recordToBeDeleted == null)
             {
                 return NotFound();
             }
 
-            _db.Records.Remove(recordToBeDeleted);
-            _db.SaveChanges();
+            _recordRepository.Delete(recordToBeDeleted);
+            _recordRepository.Save();
 
             return NoContent();
         }

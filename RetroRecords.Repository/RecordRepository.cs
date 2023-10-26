@@ -46,14 +46,14 @@ namespace RetroRecords.Repository
             return false;
         }
 
-        public void Delete(Record record)
+        public void Delete(Record recordToBeDeleted)
         {
-            throw new NotImplementedException();
+            _db.Records.Remove(recordToBeDeleted);
         }
 
         public Record Get(int id)
         {
-            Record record = _db.Records.FirstOrDefault(r => r.Id == id);
+            Record? record = _db.Records.FirstOrDefault(r => r.Id == id);
 
             return record;
         }
