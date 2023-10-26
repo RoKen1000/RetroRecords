@@ -118,26 +118,15 @@ namespace RetroRecords_RecordAPI.Controllers
                 return BadRequest();
             }
 
-            var recordInDb = _db.Records.FirstOrDefault(r => r.Id == id);
+            var recordInDb = _recordRepository.Get(id);
 
             if(recordInDb == null)
             {
                 return NotFound();
             }
 
-            recordInDb.Name = recordUpdate.Name;
-            recordInDb.Artist = recordUpdate.Artist;
-            recordInDb.UpdatedAt = DateTime.Now;
-            recordInDb.RunTime = new TimeSpan(recordUpdate.RunTimeArray[0],
-                recordUpdate.RunTimeArray[1],
-                recordUpdate.RunTimeArray[2]);
-            recordInDb.Genre = recordUpdate.Genre;
-            recordInDb.ReleaseDate = new DateTime(recordUpdate.ReleaseDateArray[0],
-                recordUpdate.ReleaseDateArray[1],
-                recordUpdate.ReleaseDateArray[2]);
-            recordInDb.Label = recordUpdate.Label;
-
-            _db.SaveChanges();
+            _recordRepository.Update(recordUpdate, recordInDb);
+            _recordRepository.Save();
 
             return NoContent();
         }

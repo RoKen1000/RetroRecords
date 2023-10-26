@@ -68,9 +68,19 @@ namespace RetroRecords.Repository
             _db.SaveChanges();
         }
 
-        public void Update(Record record)
+        public void Update(RecordDTO recordUpdate, Record recordInDb)
         {
-            throw new NotImplementedException();
+            recordInDb.Name = recordUpdate.Name;
+            recordInDb.Artist = recordUpdate.Artist;
+            recordInDb.UpdatedAt = DateTime.Now;
+            recordInDb.RunTime = new TimeSpan(recordUpdate.RunTimeArray[0],
+                recordUpdate.RunTimeArray[1],
+                recordUpdate.RunTimeArray[2]);
+            recordInDb.Genre = recordUpdate.Genre;
+            recordInDb.ReleaseDate = new DateTime(recordUpdate.ReleaseDateArray[0],
+                recordUpdate.ReleaseDateArray[1],
+                recordUpdate.ReleaseDateArray[2]);
+            recordInDb.Label = recordUpdate.Label;
         }
     }
 }

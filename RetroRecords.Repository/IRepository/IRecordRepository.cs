@@ -11,7 +11,7 @@ namespace RetroRecords.Repository.IRepository
         Record Get(int id);
         Record Add(RecordDTO newRecord);
         bool CheckRecordExists(string name);
-        void Update(Record record);
+        void Update(RecordDTO recordUpdate, Record recordInDb);
         void Delete(Record record);
         void Save();
     }
