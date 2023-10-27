@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
+﻿using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using RetroRecords.DataAccess;
 using RetroRecords.DataAccess.DataContext;
 using RetroRecords.Repository.IRepository;
 using RetroRecords_RecordAPI.Models;
@@ -78,9 +76,9 @@ namespace RetroRecords_RecordAPI.Controllers
             Record newRecordModel = _recordRepository.Add(newRecord);
             _recordRepository.Save();
 
-            var id = _db.Records.Where(r => r.Name == newRecord.Name).Select(r => new {r.Id}).FirstOrDefault();
+            //var id = _db.Records.Where(r => r.Name == newRecord.Name).Select(r => new {r.Id}).FirstOrDefault();
 
-            return CreatedAtRoute("GetRecord", id, newRecordModel);
+            return CreatedAtRoute("GetRecord", newRecordModel.Id, newRecordModel);
         }
 
         [HttpDelete("{id:int}")]
@@ -125,7 +123,7 @@ namespace RetroRecords_RecordAPI.Controllers
                 return NotFound();
             }
 
-            _recordRepository.Update(recordUpdate, recordInDb);
+            _recordRepository.UpdatePut(recordUpdate, recordInDb);
             _recordRepository.Save();
 
             return NoContent();
@@ -141,18 +139,18 @@ namespace RetroRecords_RecordAPI.Controllers
                 return BadRequest();
             }
 
-            var recordInDb = _db.Records.AsNoTracking().FirstOrDefault(r => r.Id == id);
+            var recordInDb = _recordRepository.Get(id);
 
             if (recordInDb == null)
             {
                 return BadRequest();
             }
 
-            if(patch.Operations[0].path == "/RunTimeArray")
+            if (patch.Operations[0].path == "/RunTimeArray")
             {
                 patch.Operations[0].value = JsonConvert.DeserializeObject<int[]>(patch.Operations[0].value.ToString());
             }
-            else if(patch.Operations[0].path == "/ReleaseDateArray")
+            else if (patch.Operations[0].path == "/ReleaseDateArray")
             {
                 patch.Operations[0].value = JsonConvert.DeserializeObject<int[]>(patch.Operations[0].value.ToString());
             }
@@ -163,7 +161,7 @@ namespace RetroRecords_RecordAPI.Controllers
                 Artist = recordInDb.Artist,
                 RunTimeArray = new int[3] { recordInDb.RunTime.Hours, recordInDb.RunTime.Minutes, recordInDb.RunTime.Seconds },
                 Genre = recordInDb.Genre,
-                ReleaseDateArray = new int[3] {recordInDb.ReleaseDate.Year, recordInDb.ReleaseDate.Month, recordInDb.ReleaseDate.Day},
+                ReleaseDateArray = new int[3] { recordInDb.ReleaseDate.Year, recordInDb.ReleaseDate.Month, recordInDb.ReleaseDate.Day },
                 Label = recordInDb.Label
             };
 
@@ -174,21 +172,8 @@ namespace RetroRecords_RecordAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            Record recordModel = new Record()
-            {
-                Id = id,
-                Name = recordDTO.Name,
-                Artist = recordDTO.Artist,
-                UpdatedAt = DateTime.Now,
-                RunTime = new TimeSpan(recordDTO.RunTimeArray[0], recordDTO.RunTimeArray[1], recordDTO.RunTimeArray[2]),
-                Genre = recordDTO.Genre,
-                ReleaseDate = new DateTime(recordDTO.ReleaseDateArray[0], recordDTO.ReleaseDateArray[1], recordDTO.ReleaseDateArray[2]),
-                Label = recordDTO.Label
-            };
-
-
-            _db.Records.Update(recordModel);
-            _db.SaveChanges();
+            _recordRepository.UpdatePatch(id, recordDTO);
+            _recordRepository.Save();
 
             return NoContent();
         }

@@ -2,6 +2,7 @@
 using RetroRecords.Repository.IRepository;
 using RetroRecords_RecordAPI.Models;
 using RetroRecords_RecordAPI.Models.Dto;
+using Microsoft.EntityFrameworkCore;
 
 namespace RetroRecords.Repository
 {
@@ -53,7 +54,7 @@ namespace RetroRecords.Repository
 
         public Record Get(int id)
         {
-            Record? record = _db.Records.FirstOrDefault(r => r.Id == id);
+            Record? record = _db.Records.AsNoTracking().FirstOrDefault(r => r.Id == id);
 
             return record;
         }
@@ -68,7 +69,24 @@ namespace RetroRecords.Repository
             _db.SaveChanges();
         }
 
-        public void Update(RecordDTO recordUpdate, Record recordInDb)
+        public void UpdatePatch(int id, RecordDTO recordDTO)
+        {
+            Record recordModel = new Record()
+            {
+                Id = id,
+                Name = recordDTO.Name,
+                Artist = recordDTO.Artist,
+                UpdatedAt = DateTime.Now,
+                RunTime = new TimeSpan(recordDTO.RunTimeArray[0], recordDTO.RunTimeArray[1], recordDTO.RunTimeArray[2]),
+                Genre = recordDTO.Genre,
+                ReleaseDate = new DateTime(recordDTO.ReleaseDateArray[0], recordDTO.ReleaseDateArray[1], recordDTO.ReleaseDateArray[2]),
+                Label = recordDTO.Label
+            };
+
+            _db.Records.Update(recordModel);
+        }
+
+        public void UpdatePut(RecordDTO recordUpdate, Record recordInDb)
         {
             recordInDb.Name = recordUpdate.Name;
             recordInDb.Artist = recordUpdate.Artist;
