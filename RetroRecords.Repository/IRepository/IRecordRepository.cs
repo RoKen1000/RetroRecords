@@ -1,13 +1,14 @@
 ﻿
 using RetroRecords_RecordAPI.Models;
 using RetroRecords_RecordAPI.Models.Dto;
+using System.Linq.Expressions;
 
 namespace RetroRecords.Repository.IRepository
 {
     public interface IRecordRepository
     {
         IEnumerable<Record> GetAll();
-        Record Get(int id);
+        IQueryable<Record> Get(Expression<Func<Record, bool>> filter);
         Record Add(RecordDTO newRecord);
         bool CheckRecordExists(string name);
         void UpdatePut(RecordDTO recordUpdate, Record recordInDb);

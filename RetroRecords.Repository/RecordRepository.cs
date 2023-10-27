@@ -3,6 +3,7 @@ using RetroRecords.Repository.IRepository;
 using RetroRecords_RecordAPI.Models;
 using RetroRecords_RecordAPI.Models.Dto;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace RetroRecords.Repository
 {
@@ -52,11 +53,13 @@ namespace RetroRecords.Repository
             _db.Records.Remove(recordToBeDeleted);
         }
 
-        public Record Get(int id)
+        public IQueryable<Record> Get(Expression<Func<Record, bool>> filter)
         {
-            Record? record = _db.Records.AsNoTracking().FirstOrDefault(r => r.Id == id);
+            //Record? record = _db.Records.AsNoTracking().FirstOrDefault(r => r.Id == id);
 
-            return record;
+            var dbContext = _db;
+            var dbSet = dbContext.Set<Record>();
+            return dbSet.Where(filter);
         }
 
         public IEnumerable<Record> GetAll()
