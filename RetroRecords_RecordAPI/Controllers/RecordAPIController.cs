@@ -79,101 +79,101 @@ namespace RetroRecords_RecordAPI.Controllers
             return CreatedAtRoute("GetRecord", id, newRecordModel);
         }
 
-        //[HttpDelete("{id:int}")]
-        //[ProducesResponseType(StatusCodes.Status204NoContent)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //public IActionResult DeleteRecord(int id)
-        //{
-        //    if (id == 0)
-        //    {
-        //        return BadRequest();
-        //    }
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult DeleteRecord(int id)
+        {
+            if (id == 0)
+            {
+                return BadRequest();
+            }
 
-        //    var recordToBeDeleted = _recordRepository.Get(id);
+            var recordToBeDeleted = _recordRepository.Get(r => r.Id == id).FirstOrDefault();
 
-        //    if (recordToBeDeleted == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (recordToBeDeleted == null)
+            {
+                return NotFound();
+            }
 
-        //    _recordRepository.Delete(recordToBeDeleted);
-        //    _recordRepository.Save();
+            _recordRepository.Delete(recordToBeDeleted);
+            _recordRepository.Save();
 
-        //    return NoContent();
-        //}
+            return NoContent();
+        }
 
-        //[HttpPut("{id:int}")]
-        //[ProducesResponseType(StatusCodes.Status204NoContent)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //public IActionResult UpdateRecord(int id, [FromBody] RecordDTO recordUpdate)
-        //{
-        //    if (recordUpdate == null)
-        //    {
-        //        return BadRequest();
-        //    }
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult UpdateRecord(int id, [FromBody] RecordDTO recordUpdate)
+        {
+            if (recordUpdate == null)
+            {
+                return BadRequest();
+            }
 
-        //    var recordInDb = _recordRepository.Get(id);
+            var recordInDb = _recordRepository.Get(r => r.Id == id).FirstOrDefault();
 
-        //    if(recordInDb == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (recordInDb == null)
+            {
+                return NotFound();
+            }
 
-        //    _recordRepository.UpdatePut(recordUpdate, recordInDb);
-        //    _recordRepository.Save();
+            _recordRepository.UpdatePut(recordUpdate, recordInDb);
+            _recordRepository.Save();
 
-        //    return NoContent();
-        //}
+            return NoContent();
+        }
 
-        //[HttpPatch("{id:int}")]
-        //[ProducesResponseType(StatusCodes.Status204NoContent)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public IActionResult PatchRecord(int id, JsonPatchDocument<RecordDTO> patch)
-        //{
-        //    if (patch == null || id == 0 || patch.Operations[0].path == "/Id")
-        //    {
-        //        return BadRequest();
-        //    }
+        [HttpPatch("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult PatchRecord(int id, JsonPatchDocument<RecordDTO> patch)
+        {
+            if (patch == null || id == 0 || patch.Operations[0].path == "/Id")
+            {
+                return BadRequest();
+            }
 
-        //    var recordInDb = _recordRepository.Get(id);
+            var recordInDb = _recordRepository.Get(r => r.Id == id).AsNoTracking().FirstOrDefault();
 
-        //    if (recordInDb == null)
-        //    {
-        //        return BadRequest();
-        //    }
+            if (recordInDb == null)
+            {
+                return BadRequest();
+            }
 
-        //    if (patch.Operations[0].path == "/RunTimeArray")
-        //    {
-        //        patch.Operations[0].value = JsonConvert.DeserializeObject<int[]>(patch.Operations[0].value.ToString());
-        //    }
-        //    else if (patch.Operations[0].path == "/ReleaseDateArray")
-        //    {
-        //        patch.Operations[0].value = JsonConvert.DeserializeObject<int[]>(patch.Operations[0].value.ToString());
-        //    }
+            if (patch.Operations[0].path == "/RunTimeArray")
+            {
+                patch.Operations[0].value = JsonConvert.DeserializeObject<int[]>(patch.Operations[0].value.ToString());
+            }
+            else if (patch.Operations[0].path == "/ReleaseDateArray")
+            {
+                patch.Operations[0].value = JsonConvert.DeserializeObject<int[]>(patch.Operations[0].value.ToString());
+            }
 
-        //    RecordDTO recordDTO = new RecordDTO()
-        //    {
-        //        Name = recordInDb.Name,
-        //        Artist = recordInDb.Artist,
-        //        RunTimeArray = new int[3] { recordInDb.RunTime.Hours, recordInDb.RunTime.Minutes, recordInDb.RunTime.Seconds },
-        //        Genre = recordInDb.Genre,
-        //        ReleaseDateArray = new int[3] { recordInDb.ReleaseDate.Year, recordInDb.ReleaseDate.Month, recordInDb.ReleaseDate.Day },
-        //        Label = recordInDb.Label
-        //    };
+            RecordDTO recordDTO = new RecordDTO()
+            {
+                Name = recordInDb.Name,
+                Artist = recordInDb.Artist,
+                RunTimeArray = new int[3] { recordInDb.RunTime.Hours, recordInDb.RunTime.Minutes, recordInDb.RunTime.Seconds },
+                Genre = recordInDb.Genre,
+                ReleaseDateArray = new int[3] { recordInDb.ReleaseDate.Year, recordInDb.ReleaseDate.Month, recordInDb.ReleaseDate.Day },
+                Label = recordInDb.Label
+            };
 
-        //    patch.ApplyTo(recordDTO, ModelState);
+            patch.ApplyTo(recordDTO, ModelState);
 
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-        //    _recordRepository.UpdatePatch(id, recordDTO);
-        //    _recordRepository.Save();
+            _recordRepository.UpdatePatch(id, recordDTO);
+            _recordRepository.Save();
 
-        //    return NoContent();
-        //}
+            return NoContent();
+        }
     }
 }

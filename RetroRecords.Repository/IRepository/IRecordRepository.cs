@@ -10,7 +10,6 @@ namespace RetroRecords.Repository.IRepository
         IEnumerable<Record> GetAll();
         IQueryable<Record> Get(Expression<Func<Record, bool>> filter);
         Record Add(RecordDTO newRecord);
-        bool CheckRecordExists(string name);
         void UpdatePut(RecordDTO recordUpdate, Record recordInDb);
         void UpdatePatch(int id, RecordDTO recordInDb);
         void Delete(Record record);

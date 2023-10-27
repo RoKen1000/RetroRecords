@@ -2,7 +2,6 @@
 using RetroRecords.Repository.IRepository;
 using RetroRecords_RecordAPI.Models;
 using RetroRecords_RecordAPI.Models.Dto;
-using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace RetroRecords.Repository
@@ -36,18 +35,6 @@ namespace RetroRecords.Repository
             return recordModel;
         }
 
-        public bool CheckRecordExists(string name)
-        {
-            Record? record = _db.Records.FirstOrDefault(r => r.Name.ToLower() == name.ToLower());
-
-            if (record != null)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
         public void Delete(Record recordToBeDeleted)
         {
             _db.Records.Remove(recordToBeDeleted);
@@ -55,8 +42,6 @@ namespace RetroRecords.Repository
 
         public IQueryable<Record> Get(Expression<Func<Record, bool>> filter)
         {
-            //Record? record = _db.Records.AsNoTracking().FirstOrDefault(r => r.Id == id);
-
             var dbContext = _db;
             var dbSet = dbContext.Set<Record>();
             return dbSet.Where(filter);
